@@ -20,7 +20,18 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
         script: |
+          # Stop old container
           docker stop app || true
           docker rm app || true
+
+          # Get latest code
+          if [ ! -d "cicd-app" ]; then
+            git clone https://github.com/sagargore008-rgb/cicd-app.git
+          fi
+
+          cd cicd-app
+          git pull origin main
+
+          # Build & Run
           docker build -t cicd-app .
           docker run -d -p 3000:3000 --name app cicd-app
